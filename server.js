@@ -44,10 +44,40 @@ app.post('/todos',function(req,res){
   if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
     return res.status(400).send('Data passed not formated well');
   }
+
   body.description = body.description.trim();
   body.id = todoNextId++;
   todos.push(_.pick(body,'id','description','completed'));
   res.json(todos);
+});
+
+app.delete('/todos/:id',function(req,res){
+  var todoID = parseInt(req.params.id);
+  var matchedTodo = _.findWhere(todos,{id: todoID});
+  if(!matchedTodo){
+    res.status(200).json({"error":'Item is deleted'});
+  }else{
+    todos = _.without(todos,matchedTodo);
+    res.json(matchedTodo);
+  }
+  // var counter=0;
+  // todos.forEach(function(item){
+  //   if(item.id == todoID){
+  //     console.log('todoID: '+todoID+'    item.id: '+item.id);
+  //     todos.splice(counter,1);
+  //     res.status(200).json({"error":'Item is deleted'});
+  //     return;
+  //   }
+  //   counter++;
+  // });
+  //
+  // res.status(400).json({"error":'Item is undefinde'});
+
+/*  var matchedTodo = _.findWhere(todos,{id: todoID});
+  if(matchedTodo){
+      res.delete(matchedTodo);
+      return;
+    }*/
 });
 
 app.listen(PORT,function(){
