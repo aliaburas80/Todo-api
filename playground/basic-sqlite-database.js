@@ -69,9 +69,25 @@ Todo.create({ // here we create new database item to table
   }else{
     console.log('No todo found!');
   }
+
+  return Todo.create({
+    description:"Ali Abu Ras"
+  });
+}).then(function(){
+  return Todo.findById(4);
+}).then(function(item){
+  if(item){
+    console.log('------------------- [Search by id] -------------------');
+    console.log(item.toJSON());
+  }else{
+    console.log('------------------- [Search by id Error] -------------------');
+    console.log('There is no data');
+  }
+}).catch(function(e){
+  console.error(e);
 }).catch(function(e){
   console.log(e);
 });
+});
 
-
-})
+console.log('---------------------------------------------------------------');
