@@ -1,5 +1,5 @@
 var Sequelize = require('sequelize');
-var env = process.env.NODE-EN || 'development';
+var env = process.env.NODE_EN || 'development';
 var sequelize;
 
 if(env === 'production'){
@@ -24,6 +24,4 @@ var db ={};
 db.todo = sequelize.import(__dirname + '/models/todo.js');// to load modules from superated files
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
-
 module.exports = db;
