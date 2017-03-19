@@ -170,16 +170,35 @@ app.post('/todos',function(req,res){
 
 app.delete('/todos/:id',function(req,res){
   var todoID = parseInt(req.params.id);
+  db.todo.destroy({
+    where:{
+      id:todoID
+    }
+  }).then(
+    function(success){
+      if(success === 0){
+        res.status(404).json( {error:"there is no data to deleted!"});
+      }else{
+        res.status(200).send('Success delete item #'+success+' items');
+      }
+    },function(failed){
+      res.status(404).json(failed);
+    }
+  ).catch(function(error){
+    res.status(500).json(error);
+  });
 
-  var matchedTodo = _.findWhere(todos,{id: todoID});
-  if(!matchedTodo){
-    res.status(200).json({"error":'Item is deleted'});
-  }else{
-    todos = _.without(todos,matchedTodo);
-    res.json(matchedTodo);
-  }
 
-
+  //
+  // var matchedTodo = _.findWhere(todos,{id: todoID});
+  // if(!matchedTodo){
+  //   res.status(200).json({"error":'Item is deleted'});
+  // }else{
+  //   todos = _.without(todos,matchedTodo);
+  //   res.json(matchedTodo);
+  // }
+  //
+  //
 
 
 
