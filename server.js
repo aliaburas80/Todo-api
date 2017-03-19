@@ -224,31 +224,64 @@ app.delete('/todos/:id',function(req,res){
 });
 
 app.put('/todos/:id',function(req,res){
-  var body = req.body;
   var todoID = parseInt(req.params.id);
-  var matchedTodo = _.findWhere(todos,{id: todoID});
-  if(!matchedTodo){
-    return res.status(404).send({"error":'there is no data with id ' + todoID});
-  }
+  var body = _.pick(req.body,'description','completed');
+  var attributes = {};
 
-  var body = _.pick(body,'id','description','completed');
-  var validAttributes ={};
-
-  if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
-    validAttributes.completed = body.completed;
-  }else if(body.hasOwnProperty('completed')){
-    return res.status(400).send({"error":'its not boolean'});
+  if(body.hasOwnProperty('completed')){
+    attributes.completed = body.completed;
   }
 
   if(body.hasOwnProperty('description')){
-    if(_.isString(body.description) && body.description.trim().length>0){
-      validAttributes.description = body.description.trim();
-    }else if(body.hasOwnProperty('completed')){
-      return res.status(400).send({"error":'its not string'});
-    }
+    attributes.description = body.description;
   }
-  _.extend(matchedTodo, validAttributes);
-  res.json(matchedTodo);
+
+  db.todo.findById(todoID).then(
+    function(item){
+      if(item){
+          return item.update(attributes);
+      }else{
+        res.status(404).send();
+      }
+    },function(error){
+        res.status(500).send();
+    }
+  ).then(
+    function(item){
+      res.json(item.toJSON());
+    },function(error){
+        res.status(400).json({error:error});
+    }
+  );
+
+
+
+
+  // var body = req.body;
+  // var todoID = parseInt(req.params.id);
+  // var matchedTodo = _.findWhere(todos,{id: todoID});
+  // if(!matchedTodo){
+  //   return res.status(404).send({"error":'there is no data with id ' + todoID});
+  // }
+  //
+  // var body = _.pick(body,'id','description','completed');
+  // var validAttributes ={};
+  //
+  // if(body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
+  //   validAttributes.completed = body.completed;
+  // }else if(body.hasOwnProperty('completed')){
+  //   return res.status(400).send({"error":'its not boolean'});
+  // }
+  //
+  // if(body.hasOwnProperty('description')){
+  //   if(_.isString(body.description) && body.description.trim().length>0){
+  //     validAttributes.description = body.description.trim();
+  //   }else if(body.hasOwnProperty('completed')){
+  //     return res.status(400).send({"error":'its not string'});
+  //   }
+  // }
+  // _.extend(matchedTodo, validAttributes);
+  // res.json(matchedTodo);
 });
 
 
