@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _=require('underscore');
+var db = require('./db.js');
 /**
 Using underscore to refactore git and post
 */
@@ -61,17 +62,53 @@ app.get('/todos/:id',function(req,res){
 
   });
 
+
+
+
 app.post('/todos',function(req,res){
-  var body = req.body;
-  if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
+  var body = _.pick(req.body,'description','completed');
+
+  console.log(body);
+
+  if(!_.isBoolean(body.completed)  ||
+     !_.isString(body.description) ||
+     body.description.trim().length === 0){
     return res.status(400).send('Data passed not formated well');
   }
 
-  body.description = body.description.trim();
-  body.id = todoNextId++;
-  todos.push(_.pick(body,'id','description','completed'));
-  res.json(todos);
+  db.todo.create({
+    description:body.description.trim(),
+    completed : body.completed
+  }).then(function(item){
+
+    res.status(200).send('Data saved! \ndescription:'+item.toJSON().description + '\n completed:'+item.toJSON().completed);
+
+  }).catch(function(error){
+    console.error(error);
+    res.status(400).send(error);
+  });
+
+
+  // var body = req.body;
+  // if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
+  //   return res.status(400).send('Data passed not formated well');
+  // }
+  //
+  // body.description = body.description.trim();
+  // body.id = todoNextId++;
+  // todos.push(_.pick(body,'id','description','completed'));
+  // res.json(todos);
+  //
+  //
+
+
 });
+
+
+
+
+
+
 
 app.delete('/todos/:id',function(req,res){
   var todoID = parseInt(req.params.id);
@@ -131,7 +168,10 @@ app.put('/todos/:id',function(req,res){
 });
 
 
-
-app.listen(PORT,function(){
-  console.log('Express listening on port '+PORT+'!');
+db.sequelize.sync().then(function(){
+  app.listen(PORT,function(){
+    console.log('Express listening on port '+PORT+'!');
+  });
+}).catch(function(){
+  console.error("Error in sync db!");
 });
