@@ -52,7 +52,7 @@ app.get('/todos/:id',function(req,res){
     res.set('Content-Type', 'text/plain');
     res.status(404).send(todoID+', there is no such ID in our database!');
     // todos.forEach(function(todo){
-    //   if(todo.id == todoID){
+    //   if(todo.id == todoID){modles
     //     res.json(todo);
     //     return;
     //   }
