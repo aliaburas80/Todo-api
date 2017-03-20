@@ -1,3 +1,6 @@
+var bcrypt = require('bcrypt');
+var _=require('underscore');
+
 module.exports = function(seq,DataTypes){
   return seq.define('user',{
     email:{
@@ -8,11 +11,24 @@ module.exports = function(seq,DataTypes){
           isEmail:true
         }
     },
+    salt:{// adding random set of character at end of password
+      type:DataTypes.STRING
+    },
+    password_hash:{
+      type:DataTypes.STRING
+    },
     password:{
-          type:DataTypes.STRING,
+          type:DataTypes.VIRTUAL,// dont save in database but its accessable, and its over the set functionality
           allowNull:false,
           validate:{
-            len : [7-100]
+            len : [7,100]
+          },
+          set:function(value){// value of that faild
+            var salt = bcrypt.genSaltSync(10); // generat new salt
+            var hashedPassword = bcrypt.hashSync(value,salt);//
+            this.setDataValue('password',value); // saved on db
+            this.setDataValue('salt',salt); // saved on db
+            this.setDataValue('password_hash',hashedPassword); // saved on db
           }
         }
       },{
@@ -22,6 +38,12 @@ module.exports = function(seq,DataTypes){
                 user.email = user.email.toLowerCase();
               }
           }
-    }
+        },
+          instanceMethods: {
+            toPublicJSON: function () {
+              var json = this.toJSON();
+              return _.pick(json, 'id', 'createdAt', 'updatedAt', 'email');
+            }
+        }
   })
 }

@@ -149,17 +149,21 @@ app.post('/user',function(req,res){
   db.user.create({
     email    : body.email,
     password : body.password
-  }).then(function(item){
-    res.status(200).send('\n Login success! \n email:'+item.toJSON().email + '\n password:'+item.toJSON().password);
-  }).catch(function(error){
-    console.error(error);
-    res.status(400).json({"message":error.errors[0].message, "where":error.errors[0].path});
+  }).then(
+    function(uesr){
+          res.status(200).json(uesr.toPublicJSON());
+    //res.status(200).json(item.toJSON());
+  },function(error){
+    res.status(404).json({"message":error.errors[0].message,"where":error.errors[0].path});
+  }
+).catch(function(error){
+    res.status(400).json({"message":error.errors[0].message,"where":error.errors[0].path});
   });
 
 });
 
 
-db.sequelize.sync().then(function(){
+db.sequelize.sync({force:true}).then(function(){ // {force:true} force db to recrated or regenirated to with new condition, and remove all data on db
   app.listen(PORT,function(){
     console.log('Express listening on port '+PORT+'!');
   });
