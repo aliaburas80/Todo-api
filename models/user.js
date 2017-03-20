@@ -9,11 +9,19 @@ module.exports = function(seq,DataTypes){
         }
     },
     password:{
-      type:DataTypes.STRING,
-      allowNull:false,
-      validate:{
-        len : [7-100]
-      }
+          type:DataTypes.STRING,
+          allowNull:false,
+          validate:{
+            len : [7-100]
+          }
+        }
+      },{
+        hooks:{
+          beforeValidate: function(user,options){
+              if(typeof user.email === 'string'){
+                user.email = user.email.toLowerCase();
+              }
+          }
     }
   })
 }
