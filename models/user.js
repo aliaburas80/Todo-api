@@ -34,6 +34,9 @@ module.exports = function(seq,DataTypes){
       },{
         hooks:{
           beforeValidate: function(user,options){
+            // to set email letters to lowercase
+            // and check if its a string on not.
+            // to make sure this email already excess in database or not.
               if(typeof user.email === 'string'){
                 user.email = user.email.toLowerCase();
               }
